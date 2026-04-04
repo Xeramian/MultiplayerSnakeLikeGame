@@ -1,0 +1,8 @@
+[package]
+name = "LocalGame"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+local-ip-address = "0.6.11"
+macroquad = "0.4.14"
