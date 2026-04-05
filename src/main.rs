@@ -79,7 +79,7 @@ async fn main() {
     };
     let mut apple = gen_apple(&[&snake], &[]);
     let mut scene = GameScenes::MainMenu;
-    let font = load_ttf_font("assets/PressStart2P-Regular.ttf").await.unwrap();
+    let font = load_ttf_font_from_bytes(&include_bytes!("../assets/PressStart2P-Regular.ttf")[..]).unwrap();
     let mut code = String::from("3wK8a7");
     let mut code_text = String::new();
     let mut socket = None;
