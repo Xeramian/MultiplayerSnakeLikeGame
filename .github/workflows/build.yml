@@ -6,21 +6,22 @@ jobs:
     name: Build for ${{ matrix.os }}
     runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false # Keeps other builds running if one fails
       matrix:
-        # We define the three operating systems here
         include:
           - os: ubuntu-latest
             target: x86_64-unknown-linux-gnu
             artifact_name: snake-linux
           - os: windows-latest
             target: x86_64-pc-windows-msvc
-            artifact_name: snake-windows.exe
+            artifact_name: snake-windows
           - os: macos-latest
             target: aarch64-apple-darwin
             artifact_name: snake-mac-arm
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
 
       - name: Install Linux Dependencies
         if: matrix.os == 'ubuntu-latest'
@@ -28,10 +29,17 @@ jobs:
           sudo apt-get update
           sudo apt-get install -y libasound2-dev libpkgconf-dev libx11-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrandr-dev
 
-      - name: Install Rust
+      - name: Install Rust Toolchain
         uses: dtolnay/rust-toolchain@stable
         with:
           targets: ${{ matrix.target }}
+
+      # --- THE MAGIC CACHING STEP ---
+      # This saves your 'target' folder so you don't recompile Macroquad every time.
+      - name: Cache Rust Dependencies
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: ${{ matrix.target }}
 
       - name: Build Release
         run: cargo build --release --target ${{ matrix.target }}
@@ -40,7 +48,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ${{ matrix.artifact_name }}
-          # Path to the binary (ensure this matches your executable name in Cargo.toml)
-          path: |
-            target/${{ matrix.target }}/release/local_game
-            target/${{ matrix.target }}/release/local_game.exe
+          # Path uses your exact project name "LocalGame" 
+          # The * handles both extensionless (Mac/Linux) and .exe (Windows)
+          path: target/${{ matrix.target }}/release/LocalGame*
+          if-no-files-found: error
