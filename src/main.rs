@@ -57,7 +57,7 @@ async fn main() {
     let mut next_dir = (1f32, 0f32);
     let mut time = std::time::Instant::now();
     let mut time_skip = 250;
-    let mut grid_size = (12, 12);
+    let grid_size = (12, 12);
     let gen_apple = move |snakes: &[&std::collections::VecDeque<(f32, f32)>], others: &[(f32, f32)]| {
         let mut options = HashSet::new();
         for i in 0..grid_size.0 {
@@ -79,7 +79,7 @@ async fn main() {
     };
     let mut apple = gen_apple(&[&snake], &[]);
     let mut scene = GameScenes::MainMenu;
-    let mut font = load_ttf_font("assets/PressStart2P-Regular.ttf").await.unwrap();
+    let font = load_ttf_font("assets/PressStart2P-Regular.ttf").await.unwrap();
     let mut code = String::from("3wK8a7");
     let mut code_text = String::new();
     let mut socket = None;
@@ -200,7 +200,10 @@ async fn main() {
                     draw_rectangle(padding + powerup.0 * interval_width, padding + powerup.1 * interval_height, interval_width, interval_height, RED);
                 }
                 draw_rectangle(padding + apple.0 * interval_width, padding + apple.1 * interval_height, interval_width, interval_height, ORANGE);
-                for s in &snake {
+                for s in snake.iter() {
+                    draw_rectangle(padding + s.0 * interval_width - 2f32, padding + s.1 * interval_height - 2f32, interval_width + 4f32, interval_height + 4f32, BLACK);
+                }
+                for s in snake.iter() {
                     draw_rectangle(padding + s.0 * interval_width, padding + s.1 * interval_height, interval_width, interval_height, GREEN);
                 }
                 let keys_pressed = get_keys_pressed();
@@ -273,8 +276,14 @@ async fn main() {
                     draw_rectangle(padding + powerup.0 * interval_width, padding + powerup.1 * interval_height, interval_width, interval_height, match powerup_type { 1 => Color { r: 1f32, g: 0.27f32, b: 0f32, a: 1f32 }, 2 => YELLOW, 3 => Color { r: 0f32, g: 1f32, b: 1f32, a: 1f32 }, _ => BLACK });
                 }
                 draw_rectangle(padding + apple.0 * interval_width, padding + apple.1 * interval_height, interval_width, interval_height, ORANGE);
+                for s in enemy_snake.iter() {
+                    draw_rectangle(padding + s.0 * interval_width - 2f32, padding + s.1 * interval_height - 2f32, interval_width + 4f32, interval_height + 4f32, BLACK);
+                }
                 for s in &enemy_snake {
                     draw_rectangle(padding + s.0 * interval_width, padding + s.1 * interval_height, interval_width, interval_height, BLUE);
+                }
+                for s in snake.iter() {
+                    draw_rectangle(padding + s.0 * interval_width - 2f32, padding + s.1 * interval_height - 2f32, interval_width + 4f32, interval_height + 4f32, BLACK);
                 }
                 for s in &snake {
                     draw_rectangle(padding + s.0 * interval_width, padding + s.1 * interval_height, interval_width, interval_height, GREEN);

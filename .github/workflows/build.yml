@@ -1,0 +1,46 @@
+name: Multi-Platform Build
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build for ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        # We define the three operating systems here
+        include:
+          - os: ubuntu-latest
+            target: x86_64-unknown-linux-gnu
+            artifact_name: snake-linux
+          - os: windows-latest
+            target: x86_64-pc-windows-msvc
+            artifact_name: snake-windows.exe
+          - os: macos-latest
+            target: aarch64-apple-darwin
+            artifact_name: snake-mac-arm
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Linux Dependencies
+        if: matrix.os == 'ubuntu-latest'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libasound2-dev libpkgconf-dev libx11-dev libxi-dev libgl1-mesa-dev libxcursor-dev libxinerama-dev libxrandr-dev
+
+      - name: Install Rust
+        uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.target }}
+
+      - name: Build Release
+        run: cargo build --release --target ${{ matrix.target }}
+
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.artifact_name }}
+          # Path to the binary (ensure this matches your executable name in Cargo.toml)
+          path: |
+            target/${{ matrix.target }}/release/local_game
+            target/${{ matrix.target }}/release/local_game.exe
